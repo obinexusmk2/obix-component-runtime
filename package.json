@@ -1,0 +1,112 @@
+{
+  "name": "@obinexusltd/obix-component-runtime",
+  "version": "0.1.0",
+  "description": "OBIX Heart/Soul UI/UX SDK — 30 WCAG 2.1 AA accessible components with FUD policy enforcement and jfix.scss design system",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src/styles/jfix.scss"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./styles": "./dist/styles/jfix.css",
+    "./styles/scss": "./src/styles/jfix.scss",
+    "./primitives": {
+      "import": "./dist/primitives/index.js",
+      "types": "./dist/primitives/index.d.ts"
+    },
+    "./forms": {
+      "import": "./dist/forms/index.js",
+      "types": "./dist/forms/index.d.ts"
+    },
+    "./navigation": {
+      "import": "./dist/navigation/index.js",
+      "types": "./dist/navigation/index.d.ts"
+    },
+    "./overlays": {
+      "import": "./dist/overlays/index.js",
+      "types": "./dist/overlays/index.d.ts"
+    },
+    "./feedback": {
+      "import": "./dist/feedback/index.js",
+      "types": "./dist/feedback/index.d.ts"
+    },
+    "./controls": {
+      "import": "./dist/controls/index.js",
+      "types": "./dist/controls/index.d.ts"
+    },
+    "./data": {
+      "import": "./dist/data/index.js",
+      "types": "./dist/data/index.d.ts"
+    },
+    "./search": {
+      "import": "./dist/search/index.js",
+      "types": "./dist/search/index.d.ts"
+    },
+    "./jsx-runtime": {
+      "import": "./dist/jsx-runtime.js",
+      "types": "./dist/jsx-runtime.d.ts"
+    },
+    "./jsx-dev-runtime": {
+      "import": "./dist/jsx-dev-runtime.js",
+      "types": "./dist/jsx-dev-runtime.d.ts"
+    }
+  },
+  "scripts": {
+    "build:ts": "tsc",
+    "build:scss": "sass src/styles/jfix.scss dist/styles/jfix.css --style=compressed --no-source-map",
+    "build": "npm run build:ts && npm run build:scss",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@obinexusltd/obix-component-feedback": "*",
+    "@obinexusltd/obix-component-forms": "*",
+    "@obinexusltd/obix-component-navigation": "*",
+    "@obinexusltd/obix-component-overlays": "*",
+    "@obinexusltd/obix-component-search": "*",
+    "@obinexusltd/obix-component-primitives": "*",
+    "@obinexusltd/obix-component-controls": "*",
+    "@obinexusltd/obix-component-data": "*"
+  },
+  "peerDependencies": {
+    "@obinexusltd/obix-sdk-core": "^0.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@obinexusltd/obix-sdk-core": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "sass": "^1.77.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.0",
+    "jsdom": "^28.1.0",
+    "@vitest/coverage-v8": "^4.1.0"
+  },
+  "license": "MIT",
+  "author": "OBINexus <okpalan@protonmail.com>",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "obix",
+    "accessibility",
+    "wcag",
+    "aria",
+    "components",
+    "ui",
+    "fud-mitigation",
+    "jfix",
+    "jsx",
+    "data-oriented",
+    "dop",
+    "htmlx",
+    "obinexus"
+  ]
+}

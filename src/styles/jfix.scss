@@ -1,0 +1,1189 @@
+// jfix.scss — OBIX Design System
+// Integrates Nnamdi Okpalan's jitter-fix hover strategies with WCAG 2.1 AA compliance.
+// Reference: https://gist.github.com/okpalan/f5c4eace6f8386a16d78430683a368a8
+
+// ============================================================
+// WCAG Shared Tokens
+// ============================================================
+$obix-focus-ring-color:    #005FCC;
+$obix-focus-ring-width:    3px;
+$obix-focus-ring-offset:   2px;
+$obix-min-touch:           44px;
+$obix-transition-speed:    150ms;
+
+// ============================================================
+// Component Color Tokens
+// ============================================================
+
+// Button
+$button-bg:                #1a73e8;
+$button-hover-bg:          #1558b0;
+$button-text:              #ffffff;
+$button-hover-text:        #ffffff;
+$button-disabled-bg:       #c5cae9;
+$button-disabled-text:     #9e9e9e;
+
+// Card
+$card-bg:                  #ffffff;
+$card-hover-bg:            #f8f9fa;
+$card-text:                #202124;
+$card-border:              #e0e0e0;
+$card-shadow:              0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+
+// Input / Textarea / Select
+$input-bg:                 #ffffff;
+$input-hover-bg:           #f0f4ff;
+$input-text:               #202124;
+$input-border:             #9e9e9e;
+$input-focus-border:       #005FCC;
+$input-error-border:       #d32f2f;
+$input-error-bg:           #fff5f5;
+
+// Dropdown (original jfix variables preserved)
+$dropdown-bg-color:        #f1f1f1;
+$dropdown-hover-bg-color:  #007bff;
+$dropdown-hover-text-color:#ffffff;
+$dropdown-text-color:      #000000;
+$dropdown-shadow-color:    rgba(0, 0, 0, 0.2);
+$dropdown-min-width:       160px;
+$dropdown-radius:          5px;
+$dropdown-shadow:          0px 8px 16px $dropdown-shadow-color;
+$dropdown-padding:         10px 20px;
+$hover-transition:         all 0.3s ease;
+
+// Navigation
+$nav-bg:                   #ffffff;
+$nav-hover-bg:             #f1f3f4;
+$nav-text:                 #202124;
+$nav-active-bg:            #e8f0fe;
+$nav-active-text:          #1a73e8;
+
+// Modal / Dialog
+$modal-bg:                 #ffffff;
+$modal-overlay-bg:         rgba(0, 0, 0, 0.5);
+$modal-shadow:             0 8px 32px rgba(0,0,0,0.24);
+
+// Tooltip
+$tooltip-bg:               #333333;
+$tooltip-text:             #ffffff;
+$tooltip-shadow:           0 2px 8px rgba(0,0,0,0.3);
+
+// Alert
+$alert-info-bg:            #e3f2fd;
+$alert-info-text:          #0d47a1;
+$alert-warning-bg:         #fff8e1;
+$alert-warning-text:       #f57f17;
+$alert-error-bg:           #ffebee;
+$alert-error-text:         #b71c1c;
+$alert-success-bg:         #e8f5e9;
+$alert-success-text:       #1b5e20;
+
+// Toast
+$toast-bg:                 #323232;
+$toast-text:               #ffffff;
+$toast-shadow:             0 4px 12px rgba(0,0,0,0.3);
+
+// Progress / Loading
+$progress-track-bg:        #e0e0e0;
+$progress-fill-bg:         #1a73e8;
+$loading-overlay-bg:       rgba(255,255,255,0.8);
+
+// Slider
+$slider-track-bg:          #e0e0e0;
+$slider-fill-bg:           #1a73e8;
+$slider-thumb-bg:          #1a73e8;
+$slider-thumb-hover-bg:    #1558b0;
+
+// Switch
+$switch-off-bg:            #9e9e9e;
+$switch-on-bg:             #1a73e8;
+$switch-thumb-bg:          #ffffff;
+
+// Table
+$table-header-bg:          #f5f5f5;
+$table-row-hover-bg:       #f1f3f4;
+$table-border:             #e0e0e0;
+$table-stripe-bg:          #fafafa;
+
+// Accordion
+$accordion-header-bg:      #ffffff;
+$accordion-header-hover-bg:#f5f5f5;
+$accordion-border:         #e0e0e0;
+
+// Search / Autocomplete
+$search-bg:                #ffffff;
+$search-hover-bg:          #f0f4ff;
+$autocomplete-item-hover:  #e8f0fe;
+
+// Breadcrumb / Pagination / Tabs / Stepper
+$breadcrumb-text:          #757575;
+$breadcrumb-active-text:   #202124;
+$tab-active-border:        #1a73e8;
+$stepper-active-bg:        #1a73e8;
+$stepper-completed-bg:     #34a853;
+$stepper-pending-bg:       #e0e0e0;
+
+// ============================================================
+// Core Mixins
+// ============================================================
+
+// Universal focus ring — WCAG 2.4.7 / 2.4.11 compliant
+@mixin jfix-focus-ring {
+  &:focus-visible {
+    outline: $obix-focus-ring-width solid $obix-focus-ring-color;
+    outline-offset: $obix-focus-ring-offset;
+    border-radius: 2px;
+  }
+}
+
+// Touch target — WCAG 2.5.5 (44x44px minimum)
+@mixin jfix-touch-target {
+  min-width: $obix-min-touch;
+  min-height: $obix-min-touch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Strategy 1: Transform-based scaling — no layout shift (jfix original)
+// Used by: Button, Dropdown, Slider, Switch, Search, Autocomplete, Image
+@mixin jfix-hover-transform-scale($bg, $text, $scale: 1.02) {
+  transition: transform $obix-transition-speed ease,
+              background-color $obix-transition-speed ease,
+              color $obix-transition-speed ease;
+  &:hover:not([aria-disabled="true"]):not(:disabled) {
+    transform: scale($scale);
+    background-color: $bg;
+    color: $text;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: background-color $obix-transition-speed ease, color $obix-transition-speed ease;
+    &:hover:not([aria-disabled="true"]):not(:disabled) {
+      transform: none;
+    }
+  }
+}
+
+// Strategy 2: Box shadow — visual depth without layout shift (jfix original)
+// Used by: Card, Modal, Tooltip, Alert, Toast, Progress, Loading
+@mixin jfix-hover-box-shadow($bg, $text, $shadow: 0 4px 12px rgba(0,0,0,0.15)) {
+  transition: box-shadow $obix-transition-speed ease,
+              background-color $obix-transition-speed ease,
+              color $obix-transition-speed ease;
+  &:hover:not([aria-disabled="true"]):not(:disabled) {
+    box-shadow: $shadow;
+    background-color: $bg;
+    color: $text;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: background-color $obix-transition-speed ease, color $obix-transition-speed ease;
+    &:hover:not([aria-disabled="true"]):not(:disabled) {
+      box-shadow: none;
+    }
+  }
+}
+
+// Strategy 3: Fixed size — consistent element size, zero layout shift (jfix original)
+// Used by: Input, Checkbox, RadioGroup, Select, Textarea, Form, DatePicker,
+//          FileUpload, Navigation, Breadcrumb, Pagination, Tabs, Stepper, Table, Accordion
+@mixin jfix-hover-fixed-size($bg, $text) {
+  transition: background-color $obix-transition-speed ease,
+              color $obix-transition-speed ease;
+  &:hover:not([aria-disabled="true"]):not(:disabled) {
+    background-color: $bg;
+    color: $text;
+  }
+}
+
+// Mixin from original jfix.scss (preserved for compatibility)
+@mixin dropdown-hover-style($bg-color, $text-color) {
+  background-color: $bg-color;
+  color: $text-color;
+}
+
+// ============================================================
+// Per-Component Classes (all 30 components)
+// ============================================================
+
+// --- Primitives ---
+
+.obix-button {
+  @include jfix-touch-target;
+  @include jfix-focus-ring;
+  background-color: $button-bg;
+  color: $button-text;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0 16px;
+  box-sizing: border-box;
+  @include jfix-hover-transform-scale($button-hover-bg, $button-hover-text);
+
+  &[aria-disabled="true"],
+  &:disabled {
+    background-color: $button-disabled-bg;
+    color: $button-disabled-text;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  &[aria-busy="true"] {
+    opacity: 0.7;
+    cursor: wait;
+  }
+}
+
+.obix-card {
+  @include jfix-focus-ring;
+  background-color: $card-bg;
+  color: $card-text;
+  border: 1px solid $card-border;
+  border-radius: 8px;
+  box-shadow: $card-shadow;
+  overflow: hidden;
+  box-sizing: border-box;
+  @include jfix-hover-box-shadow($card-hover-bg, $card-text, 0 4px 16px rgba(0,0,0,0.16));
+
+  &[aria-busy="true"] .obix-card__skeleton {
+    display: block;
+  }
+}
+
+.obix-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: attr(width) / attr(height);
+
+  &[aria-hidden="true"] { display: none; }
+}
+
+.obix-video {
+  @include jfix-focus-ring;
+  display: block;
+  max-width: 100%;
+  background: #000;
+
+  &__controls {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+  }
+}
+
+// --- Forms ---
+
+.obix-input {
+  @include jfix-focus-ring;
+  background-color: $input-bg;
+  color: $input-text;
+  border: 1px solid $input-border;
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  min-height: $obix-min-touch;
+  width: 100%;
+  box-sizing: border-box;
+  @include jfix-hover-fixed-size($input-hover-bg, $input-text);
+
+  &[aria-invalid="true"] {
+    border-color: $input-error-border;
+    background-color: $input-error-bg;
+  }
+
+  &:focus {
+    border-color: $input-focus-border;
+  }
+}
+
+.obix-checkbox {
+  @include jfix-touch-target;
+  @include jfix-focus-ring;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  @include jfix-hover-fixed-size(transparent, $input-text);
+
+  input[type="checkbox"] {
+    min-width: 20px;
+    min-height: 20px;
+    cursor: pointer;
+    accent-color: $button-bg;
+  }
+}
+
+.obix-radio-group {
+  border: none;
+  padding: 0;
+  margin: 0;
+
+  &__item {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    @include jfix-hover-fixed-size(transparent, $input-text);
+
+    input[type="radio"] {
+      min-width: 20px;
+      min-height: 20px;
+      cursor: pointer;
+      accent-color: $button-bg;
+    }
+  }
+}
+
+.obix-select {
+  @include jfix-focus-ring;
+  background-color: $input-bg;
+  color: $input-text;
+  border: 1px solid $input-border;
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  min-height: $obix-min-touch;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  @include jfix-hover-fixed-size($input-hover-bg, $input-text);
+
+  &[aria-invalid="true"] {
+    border-color: $input-error-border;
+    background-color: $input-error-bg;
+  }
+}
+
+.obix-textarea {
+  @include jfix-focus-ring;
+  background-color: $input-bg;
+  color: $input-text;
+  border: 1px solid $input-border;
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  @include jfix-hover-fixed-size($input-hover-bg, $input-text);
+
+  &[aria-invalid="true"] {
+    border-color: $input-error-border;
+    background-color: $input-error-bg;
+  }
+
+  &__counter {
+    font-size: 0.75rem;
+    color: #757575;
+    text-align: right;
+  }
+}
+
+.obix-form {
+  &__error-summary {
+    background-color: $alert-error-bg;
+    color: $alert-error-text;
+    border: 1px solid $alert-error-text;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+  }
+
+  &__fieldset {
+    border: 1px solid $card-border;
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  &__hint {
+    font-size: 0.875rem;
+    color: #757575;
+    margin-top: 4px;
+  }
+}
+
+.obix-date-picker {
+  @include jfix-focus-ring;
+  background-color: $input-bg;
+  color: $input-text;
+  border: 1px solid $input-border;
+  border-radius: 4px;
+  padding: 10px 12px;
+  min-height: $obix-min-touch;
+  width: 100%;
+  box-sizing: border-box;
+  @include jfix-hover-fixed-size($input-hover-bg, $input-text);
+
+  &__calendar {
+    background: $modal-bg;
+    border-radius: 8px;
+    box-shadow: $modal-shadow;
+    padding: 16px;
+
+    &-day {
+      @include jfix-touch-target;
+      @include jfix-focus-ring;
+      border-radius: 50%;
+      @include jfix-hover-fixed-size($nav-hover-bg, $nav-text);
+
+      &--today {
+        background-color: $nav-active-bg;
+        color: $nav-active-text;
+        font-weight: 600;
+      }
+
+      &--selected {
+        background-color: $button-bg;
+        color: #ffffff;
+      }
+    }
+  }
+}
+
+.obix-file-upload {
+  @include jfix-focus-ring;
+  border: 2px dashed $input-border;
+  border-radius: 8px;
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  background-color: $input-bg;
+  @include jfix-hover-fixed-size($input-hover-bg, $input-text);
+
+  &--dragging {
+    border-color: $button-bg;
+    background-color: $nav-active-bg;
+  }
+
+  &__file-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+
+    &-remove {
+      @include jfix-touch-target;
+      @include jfix-focus-ring;
+    }
+  }
+}
+
+// --- Navigation ---
+
+.obix-navigation {
+  &__skip-link {
+    position: absolute;
+    left: -9999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+
+    &:focus {
+      left: 0;
+      top: 0;
+      width: auto;
+      height: auto;
+      padding: 8px 16px;
+      background: $button-bg;
+      color: #ffffff;
+      z-index: 9999;
+    }
+  }
+
+  &__item {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    @include jfix-hover-fixed-size($nav-hover-bg, $nav-text);
+    display: inline-flex;
+    align-items: center;
+    padding: 0 16px;
+    text-decoration: none;
+    color: $nav-text;
+
+    &[aria-current="page"] {
+      background-color: $nav-active-bg;
+      color: $nav-active-text;
+    }
+  }
+
+  &__hamburger {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+.obix-breadcrumb {
+  &__item {
+    @include jfix-focus-ring;
+    color: $breadcrumb-text;
+    text-decoration: none;
+    @include jfix-hover-fixed-size(transparent, $nav-active-text);
+
+    &[aria-current="page"] {
+      color: $breadcrumb-active-text;
+      font-weight: 500;
+    }
+  }
+}
+
+.obix-pagination {
+  &__button {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    background-color: transparent;
+    border: 1px solid $input-border;
+    border-radius: 4px;
+    cursor: pointer;
+    @include jfix-hover-fixed-size($nav-hover-bg, $nav-text);
+
+    &[aria-current="page"] {
+      background-color: $button-bg;
+      color: #ffffff;
+      border-color: $button-bg;
+    }
+
+    &[aria-disabled="true"] {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+}
+
+.obix-tabs {
+  &__tab {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    padding: 0 16px;
+    @include jfix-hover-fixed-size($nav-hover-bg, $nav-text);
+
+    &[aria-selected="true"] {
+      border-bottom-color: $tab-active-border;
+      color: $nav-active-text;
+    }
+  }
+
+  &__panel {
+    padding: 16px 0;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.obix-stepper {
+  &__step {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    @include jfix-hover-fixed-size(transparent, $nav-text);
+
+    &-indicator {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: $stepper-pending-bg;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    &[aria-current="step"] .obix-stepper__step-indicator {
+      background-color: $stepper-active-bg;
+      color: #ffffff;
+    }
+
+    &--completed .obix-stepper__step-indicator {
+      background-color: $stepper-completed-bg;
+      color: #ffffff;
+    }
+  }
+}
+
+// --- Overlays ---
+
+.jfix-dropdown {
+  position: relative;
+
+  &-content {
+    display: none;
+    position: absolute;
+    background-color: $dropdown-bg-color;
+    min-width: $dropdown-min-width;
+    border-radius: $dropdown-radius;
+    box-shadow: $dropdown-shadow;
+    z-index: 1;
+
+    a {
+      color: $dropdown-text-color;
+      padding: $dropdown-padding;
+      text-decoration: none;
+      display: block;
+      border-radius: $dropdown-radius;
+      transition: $hover-transition;
+      box-sizing: border-box;
+
+      &:hover {
+        @include dropdown-hover-style($dropdown-hover-bg-color, $dropdown-hover-text-color);
+      }
+    }
+  }
+
+  &:hover .jfix-dropdown-content {
+    display: block;
+  }
+}
+
+// Strategy 1: Transform-Based Scaling (original jfix)
+.jfix-transform-scale {
+  .jfix-dropdown-content a:hover {
+    transform: scaleY(1.1);
+  }
+}
+
+// Strategy 2: Box Shadow for Visual Depth (original jfix)
+.jfix-box-shadow-hover {
+  .jfix-dropdown-content a:hover {
+    box-shadow: 0px 4px 8px $dropdown-shadow-color;
+  }
+}
+
+// Strategy 3: Consistent Element Size (original jfix)
+.jfix-fixed-size {
+  .jfix-dropdown-content a {
+    min-height: 50px;
+  }
+  .jfix-dropdown-content a:hover {
+    padding: $dropdown-padding;
+  }
+}
+
+.obix-dropdown {
+  @include jfix-focus-ring;
+  position: relative;
+  background-color: $dropdown-bg-color;
+  color: $dropdown-text-color;
+  border-radius: $dropdown-radius;
+  @include jfix-hover-transform-scale($dropdown-hover-bg-color, $dropdown-hover-text-color, 1.01);
+
+  &__trigger {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    background: transparent;
+    border: 1px solid $input-border;
+    border-radius: $dropdown-radius;
+    cursor: pointer;
+    padding: 0 16px;
+  }
+
+  &__list {
+    position: absolute;
+    background-color: $dropdown-bg-color;
+    min-width: $dropdown-min-width;
+    border-radius: $dropdown-radius;
+    box-shadow: $dropdown-shadow;
+    z-index: 100;
+    display: none;
+
+    &[aria-expanded="true"],
+    &.open {
+      display: block;
+    }
+  }
+
+  &__item {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    display: block;
+    padding: $dropdown-padding;
+    color: $dropdown-text-color;
+    cursor: pointer;
+    border-radius: $dropdown-radius;
+    box-sizing: border-box;
+    @include jfix-hover-transform-scale($dropdown-hover-bg-color, $dropdown-hover-text-color, 1.01);
+
+    &[aria-selected="true"] {
+      background-color: $nav-active-bg;
+      color: $nav-active-text;
+    }
+  }
+}
+
+.obix-modal {
+  &__overlay {
+    position: fixed;
+    inset: 0;
+    background-color: $modal-overlay-bg;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__dialog {
+    @include jfix-focus-ring;
+    background-color: $modal-bg;
+    border-radius: 8px;
+    box-shadow: $modal-shadow;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 24px;
+    @include jfix-hover-box-shadow($modal-bg, $nav-text, $modal-shadow);
+  }
+
+  &__close {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    background: none;
+    border: none;
+    cursor: pointer;
+    float: right;
+  }
+}
+
+.obix-tooltip {
+  position: relative;
+  display: inline-flex;
+
+  &__content {
+    position: absolute;
+    background-color: $tooltip-bg;
+    color: $tooltip-text;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    box-shadow: $tooltip-shadow;
+    z-index: 200;
+    pointer-events: none;
+    @include jfix-hover-box-shadow($tooltip-bg, $tooltip-text, $tooltip-shadow);
+
+    &[hidden] { display: none; }
+  }
+}
+
+// --- Feedback ---
+
+.obix-alert {
+  border-radius: 4px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  @include jfix-hover-box-shadow(transparent, inherit);
+
+  &--info    { background-color: $alert-info-bg;    color: $alert-info-text; }
+  &--warning { background-color: $alert-warning-bg; color: $alert-warning-text; }
+  &--error   { background-color: $alert-error-bg;   color: $alert-error-text; }
+  &--success { background-color: $alert-success-bg; color: $alert-success-text; }
+
+  &__dismiss {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: auto;
+  }
+}
+
+.obix-toast {
+  background-color: $toast-bg;
+  color: $toast-text;
+  border-radius: 4px;
+  padding: 12px 16px;
+  box-shadow: $toast-shadow;
+  min-width: 280px;
+  max-width: 480px;
+  @include jfix-hover-box-shadow(lighten($toast-bg, 5%), $toast-text, $toast-shadow);
+
+  &__dismiss {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    background: none;
+    border: none;
+    color: $toast-text;
+    cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.obix-progress {
+  width: 100%;
+  height: 8px;
+  background-color: $progress-track-bg;
+  border-radius: 4px;
+  overflow: hidden;
+
+  &__fill {
+    height: 100%;
+    background-color: $progress-fill-bg;
+    border-radius: 4px;
+    transition: width 250ms ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  &--indeterminate .obix-progress__fill {
+    width: 40%;
+    animation: obix-progress-indeterminate 1.5s infinite ease-in-out;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+      width: 100%;
+      opacity: 0.4;
+    }
+  }
+}
+
+@keyframes obix-progress-indeterminate {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+.obix-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &__spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid $progress-track-bg;
+    border-top-color: $progress-fill-bg;
+    border-radius: 50%;
+    animation: obix-spin 0.8s linear infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+      border-color: $progress-fill-bg;
+    }
+  }
+
+  &__skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: obix-skeleton-shimmer 1.5s infinite;
+    border-radius: 4px;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+      background: #e0e0e0;
+    }
+  }
+}
+
+@keyframes obix-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes obix-skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// --- Controls ---
+
+.obix-slider {
+  @include jfix-focus-ring;
+  width: 100%;
+  height: $obix-min-touch;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  &__track {
+    width: 100%;
+    height: 4px;
+    background-color: $slider-track-bg;
+    border-radius: 2px;
+    position: relative;
+  }
+
+  &__fill {
+    height: 100%;
+    background-color: $slider-fill-bg;
+    border-radius: 2px;
+  }
+
+  &__thumb {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: $slider-thumb-bg;
+    border-radius: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    top: 50%;
+    cursor: grab;
+    @include jfix-hover-transform-scale($slider-thumb-hover-bg, $slider-thumb-hover-bg, 1.15);
+  }
+}
+
+.obix-switch {
+  @include jfix-touch-target;
+  @include jfix-focus-ring;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+
+  &__track {
+    width: 44px;
+    height: 24px;
+    background-color: $switch-off-bg;
+    border-radius: 12px;
+    position: relative;
+    transition: background-color $obix-transition-speed ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  &[aria-checked="true"] .obix-switch__track {
+    background-color: $switch-on-bg;
+  }
+
+  &__thumb {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: $switch-thumb-bg;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform $obix-transition-speed ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  &[aria-checked="true"] .obix-switch__thumb {
+    transform: translateX(20px);
+  }
+}
+
+// --- Data ---
+
+.obix-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow-x: auto;
+  display: block;
+
+  caption {
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 0;
+    color: $nav-text;
+  }
+
+  th, td {
+    padding: 12px 16px;
+    border-bottom: 1px solid $table-border;
+    text-align: left;
+  }
+
+  th {
+    background-color: $table-header-bg;
+    font-weight: 600;
+
+    &[aria-sort] {
+      cursor: pointer;
+      @include jfix-focus-ring;
+      @include jfix-hover-fixed-size($nav-hover-bg, $nav-text);
+    }
+  }
+
+  tr:hover td {
+    background-color: $table-row-hover-bg;
+  }
+
+  tr:nth-child(even) td {
+    background-color: $table-stripe-bg;
+  }
+}
+
+.obix-accordion {
+  border: 1px solid $accordion-border;
+  border-radius: 8px;
+  overflow: hidden;
+
+  &__trigger {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    width: 100%;
+    text-align: left;
+    background-color: $accordion-header-bg;
+    border: none;
+    border-bottom: 1px solid $accordion-border;
+    padding: 0 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    @include jfix-hover-fixed-size($accordion-header-hover-bg, $nav-text);
+
+    &[aria-expanded="true"] {
+      background-color: $accordion-header-hover-bg;
+    }
+  }
+
+  &__panel {
+    padding: 16px;
+    overflow: hidden;
+    transition: max-height 250ms ease;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+
+    &[hidden] { display: none; }
+  }
+}
+
+// --- Search ---
+
+.obix-search {
+  &__form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__input {
+    @include jfix-focus-ring;
+    background-color: $search-bg;
+    border: 1px solid $input-border;
+    border-radius: 24px;
+    padding: 10px 16px;
+    font-size: 1rem;
+    min-height: $obix-min-touch;
+    flex: 1;
+    @include jfix-hover-transform-scale($search-hover-bg, $input-text, 1.005);
+  }
+
+  &__clear {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  &__submit {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    background-color: $button-bg;
+    color: #ffffff;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    padding: 0 16px;
+    @include jfix-hover-transform-scale($button-hover-bg, #ffffff);
+  }
+}
+
+.obix-autocomplete {
+  position: relative;
+
+  &__input {
+    @include jfix-focus-ring;
+    background-color: $search-bg;
+    border: 1px solid $input-border;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 1rem;
+    min-height: $obix-min-touch;
+    width: 100%;
+    box-sizing: border-box;
+    @include jfix-hover-transform-scale($search-hover-bg, $input-text, 1.005);
+  }
+
+  &__listbox {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: $dropdown-bg-color;
+    border: 1px solid $input-border;
+    border-radius: 4px;
+    box-shadow: $dropdown-shadow;
+    z-index: 100;
+    max-height: 240px;
+    overflow-y: auto;
+
+    &[hidden] { display: none; }
+  }
+
+  &__option {
+    @include jfix-touch-target;
+    @include jfix-focus-ring;
+    padding: $dropdown-padding;
+    cursor: pointer;
+    @include jfix-hover-fixed-size($autocomplete-item-hover, $input-text);
+
+    &[aria-selected="true"] {
+      background-color: $autocomplete-item-hover;
+      font-weight: 500;
+    }
+
+    &--active {
+      background-color: $nav-active-bg;
+      color: $nav-active-text;
+    }
+  }
+}
+
+// ============================================================
+// Runtime Strategy Override via data-jfix-strategy attribute
+// (applied last for highest specificity — enables runtime switching)
+// ============================================================
+
+[data-jfix-strategy="transform-scale"]:hover:not([aria-disabled="true"]):not(:disabled) {
+  transform: scale(1.02);
+  transition: transform $obix-transition-speed ease, background-color $obix-transition-speed ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transform: none;
+  }
+}
+
+[data-jfix-strategy="box-shadow"]:hover:not([aria-disabled="true"]):not(:disabled) {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: box-shadow $obix-transition-speed ease, background-color $obix-transition-speed ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    box-shadow: none;
+  }
+}
+
+[data-jfix-strategy="fixed-size"]:hover:not([aria-disabled="true"]):not(:disabled) {
+  transition: background-color $obix-transition-speed ease, color $obix-transition-speed ease;
+}

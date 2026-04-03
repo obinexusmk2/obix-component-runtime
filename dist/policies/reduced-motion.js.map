@@ -1,0 +1,1 @@
+{"version":3,"file":"reduced-motion.js","sourceRoot":"","sources":["../../src/policies/reduced-motion.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,sBAAsB,EAAE,MAAM,kBAAkB,CAAC;AAE1D,MAAM,UAAU,wBAAwB,CACtC,KAAyC;IAEzC,IAAI,CAAC,KAAK,CAAC,mBAAmB,EAAE,CAAC;QAC/B,OAAO,EAAE,GAAG,KAAK,EAAE,mBAAmB,EAAE,sBAAsB,EAAE,CAAC;IACnE,CAAC;IACD,OAAO,KAAK,CAAC;AACf,CAAC"}
